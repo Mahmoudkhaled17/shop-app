@@ -29,26 +29,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-```
-
----
-
-**Step 3 — Push to GitHub**, wait ~1 minute for the Action to run, then go back to **Settings → Pages** and change the branch from `main` to **`gh-pages`**:
-```
-Branch:  gh-pages ▾    / (root) ▾    Save
-```
-
----
-
-**Why this fixes it:**
-```
-Right now:
-  GitHub Pages reads → main branch / root
-  It finds → index.html, src/, vite.config.js  ← raw source, not built!
-  Browser sees → nothing works
-
-After fix:
-  GitHub Action builds → npm run build → creates dist/
-  Pushes dist/ → to gh-pages branch
-  GitHub Pages reads → gh-pages branch / root
-  Browser gets → real built HTML + JS ✅
