@@ -1,0 +1,54 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+```
+
+---
+
+**Step 3 — Push to GitHub**, wait ~1 minute for the Action to run, then go back to **Settings → Pages** and change the branch from `main` to **`gh-pages`**:
+```
+Branch:  gh-pages ▾    / (root) ▾    Save
+```
+
+---
+
+**Why this fixes it:**
+```
+Right now:
+  GitHub Pages reads → main branch / root
+  It finds → index.html, src/, vite.config.js  ← raw source, not built!
+  Browser sees → nothing works
+
+After fix:
+  GitHub Action builds → npm run build → creates dist/
+  Pushes dist/ → to gh-pages branch
+  GitHub Pages reads → gh-pages branch / root
+  Browser gets → real built HTML + JS ✅
